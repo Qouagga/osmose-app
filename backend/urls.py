@@ -24,6 +24,7 @@ https://www.django-rest-framework.org/api-guide/routers/
 """
 
 from django.contrib import admin
+from django.conf import settings
 from django.urls import path, include
 
 from rest_framework import routers
@@ -62,4 +63,5 @@ api_urlpatterns = [
 urlpatterns = [
     path("backend/", include(backend_urlpatterns)),
     path("api/", include(api_urlpatterns)),
+    path('__debug__/', include('debug_toolbar.urls')) if settings.DEBUG == True else None,
 ]

@@ -5,6 +5,7 @@ See https://docs.djangoproject.com/en/3.2/howto/deployment/checklist/
 
 from datetime import timedelta
 from pathlib import Path
+import socket
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent.parent
@@ -14,6 +15,8 @@ SECRET_KEY = "(7ez_3daj2vkxl+pq8fbk8cav8$y4wrs!(!x(q!ec01iq2k7gl"
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
+
+STATIC_URL = "static/"
 
 ALLOWED_HOSTS = []
 
@@ -39,3 +42,6 @@ SIMPLE_JWT = {"ACCESS_TOKEN_LIFETIME": timedelta(hours=8)}
 DATASET_IMPORT_FOLDER = BASE_DIR / "volumes/datawork/dataset"
 # Adding volumes folder to staticfiles dirs
 STATICFILES_DIRS = [BASE_DIR / "backend/api/static", BASE_DIR / "volumes"]
+
+hostname, _, ips = socket.gethostbyname_ex(socket.gethostname())
+INTERNAL_IPS = [ip[: ip.rfind(".")] + ".1" for ip in ips] + ["127.0.0.1", "10.0.2.2"]

@@ -20,6 +20,7 @@ coverage = {extras = ["toml"], version = "^6.3"}
 black = "^22.10.0"
 pylint = "2.14.5"
 pylint-django = "^2.5.3"
+django-debug-toolbar = "^3.8.1"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]
