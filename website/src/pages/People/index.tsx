@@ -20,8 +20,9 @@ import florePortrait from '../../img/people/team_flore_420_420.webp'
 import juliePortrait from '../../img/people/team_Photo_Julie_420_420.webp'
 import maellePortrait from '../../img/people/maelle_portrait.jpg'
 import dorianPortrait from '../../img/people/team_dodo_420_420.webp'
-import paulPortrait from '../../img/people/Paul_200_200.webp'
+import paulPortrait from '../../img/people/paul_200_200.webp'
 import alexPortrait from '../../img/people/alex.jpg'
+import mathieuPortrait from '../../img/people/mathieu_portrait.jpg'
 
 export const People: React.FC = () => {
 
@@ -93,17 +94,6 @@ export const People: React.FC = () => {
     </CardMember>
 
     <CardMember
-    name="Paul Nguyen Hong Duc"
-    img={paulPortrait}
-    imgSide="right"
-    imgAlt="Paul’s portrait"
-    // job="Data Scientist"
-    >
-      <p className="quote">
-      I am a postdoctoral fellow jointly hosted at <a href="https://people.math.carleton.ca/~davecampbell/Dave_Campbell.html">Carleton University</a> and Simon Fraser University. I am working on the development of deep learning models to help identify Southern Resident Killer Whale vocalizations in the Salish Sea. I have a background in image and signal processing and I did my doctoral research project at Sorbonne Université in France. The aim was to deal with the lack of annotated data (weak supervision) for underwater acoustic scene or event detection and classification in a Big Data context. My research interests in the marine environment include (but are not limited to) characterizing a soundscape, and developing detection and classification models for underwater sounds.
-      </p>
-        </CardMember>
-        <CardMember
     name="Paul Nguyen Hong Duc"
     img={paulPortrait}
     imgSide="right"
