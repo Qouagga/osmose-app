@@ -9,7 +9,7 @@ export type choices_type = {
     name: string
   }
 };
-  
+
 type ListChooserProps = {
   choice_type: string,
   chosen_list: choices_type,

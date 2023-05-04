@@ -7,6 +7,55 @@ from django.db import models
 from django.conf import settings
 from django.db.models import Q
 
+class ConfidenceName(models.Model):
+    """
+    This table contains collections of tags to be used for dataset annotations. An annotation_set is created by a user
+    and can be used for multiple datasets and annotation campaigns.
+    """
+
+    class Meta:
+        db_table = "confidence_name"
+
+    def __str__(self):
+        return str(self.name)
+
+    name = models.CharField(max_length=255, unique=True)
+
+class Confidence(models.Model):
+    """
+    This table contains collections of tags to be used for dataset annotations. An annotation_set is created by a user
+    and can be used for multiple datasets and annotation campaigns.
+    """
+
+    class Meta:
+        db_table = "confidence"
+
+    def __str__(self):
+        return str(self.name)
+
+    name = models.ForeignKey(ConfidenceName, on_delete=models.CASCADE)
+    order = models.IntegerField()
+
+class ConfidenceIndicatorSet(models.Model):
+    """
+    This table contains collections of tags to be used for dataset annotations. An annotation_set is created by a user
+    and can be used for multiple datasets and annotation campaigns.
+    """
+
+    class Meta:
+        db_table = "confidence_sets"
+
+    def __str__(self):
+        return str(self.name)
+
+    name = models.CharField(max_length=255, unique=True)
+    desc = models.TextField(null=True, blank=True)
+    confidences = models.ManyToManyField(Confidence)
+    default_confidence=models.ForeignKey(Confidence,
+                                        on_delete=models.CASCADE,
+                                        related_name="default_confidence",
+                                        null=True,
+                                        blank=True)
 
 class AnnotationTag(models.Model):
     """
@@ -40,7 +89,6 @@ class AnnotationSet(models.Model):
     tags = models.ManyToManyField(AnnotationTag)
 
     owner = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
-
 
 class AnnotationCampaign(models.Model):
     """
@@ -80,6 +128,7 @@ class AnnotationCampaign(models.Model):
         through="AnnotationTask",
         related_name="task_campaigns",
     )
+    confidence_indicator_set = models.ForeignKey(ConfidenceIndicatorSet, on_delete=models.CASCADE, null=True)
 
     def add_annotator(self, annotator, files_target=None, method="sequential"):
         # pylint: disable=too-many-locals
@@ -189,6 +238,7 @@ class AnnotationResult(models.Model):
     annotation_task = models.ForeignKey(
         AnnotationTask, on_delete=models.CASCADE, related_name="results"
     )
+    confidence = models.ForeignKey(Confidence, on_delete=models.CASCADE, null=True, blank=True)
 
 
 class AnnotationSession(models.Model):
@@ -208,3 +258,4 @@ class AnnotationSession(models.Model):
     annotation_task = models.ForeignKey(
         AnnotationTask, on_delete=models.CASCADE, related_name="sessions"
     )
+

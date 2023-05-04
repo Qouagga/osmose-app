@@ -31,8 +31,8 @@ from rest_framework import routers
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 from drf_spectacular.views import SpectacularAPIView, SpectacularSwaggerView
 
-from backend.api.views import DatasetViewSet, UserViewSet, AnnotationSetViewSet
-from backend.api.views import AnnotationTaskViewSet, AnnotationCampaignViewSet
+from backend.api.views import DatasetViewSet, UserViewSet, AnnotationSetViewSet, ConfidenceSetViewSet
+from backend.api.views import AnnotationTaskViewSet, AnnotationCampaignViewSet, AnnotationTaskViewSet, AnnotationCampaignViewSet
 
 # Backend urls are for admin & api documentation
 backend_urlpatterns = [
@@ -49,6 +49,7 @@ api_router = routers.DefaultRouter()
 api_router.register(r"dataset", DatasetViewSet, basename="dataset")
 api_router.register(r"user", UserViewSet, basename="user")
 api_router.register(r"annotation-set", AnnotationSetViewSet, basename="annotation-set")
+api_router.register(r"confidence-set", ConfidenceSetViewSet, basename="confidence-set")
 api_router.register(
     r"annotation-campaign", AnnotationCampaignViewSet, basename="annotation-campaign"
 )

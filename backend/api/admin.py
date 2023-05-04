@@ -18,6 +18,9 @@ from backend.api.models import (
     AudioMetadatum,
     GeoMetadatum,
     WindowType,
+    ConfidenceName,
+    Confidence,
+    ConfidenceIndicatorSet,
 )
 
 
@@ -38,8 +41,42 @@ def get_many_to_many(obj, field_name, related_field_name="name"):
         name_field = getattr(one_name_attr, related_field_name)
         many_to_many_attributs += f"{name_field}, "
 
-    return " ".join(OrderedDict.fromkeys(many_to_many_attributs.split()))
+    return many_to_many_attributs[:-2]
 
+class ConfidenceNameAdmin(admin.ModelAdmin):
+    """ConfidenceName presentation in DjangoAdmin
+
+    Args:
+        admin (admin.ModelAdmin)
+    """
+
+    list_display = ["id", "name"]
+
+class ConfidenceAdmin(admin.ModelAdmin):
+    """Collection presentation in DjangoAdmin
+
+    Args:
+        admin (admin.ModelAdmin)
+    """
+
+    list_display = ("id", "name", "order")
+
+class ConfidenceIndicatorSetAdmin(admin.ModelAdmin):
+    """Collection presentation in DjangoAdmin
+
+    Args:
+        admin (admin.ModelAdmin)
+    """
+
+    list_display = ("id",
+                    "name",
+                    "desc",
+                    "show_confidences",
+                    "default_confidence")
+
+    def show_confidences(self, obj):
+        """show_confidences"""
+        return get_many_to_many(obj, "confidences")
 
 class CollectionAdmin(admin.ModelAdmin):
     """Collection presentation in DjangoAdmin
@@ -160,6 +197,7 @@ class AnnotationCampaignAdmin(admin.ModelAdmin):
         "show_spectro_configs",
         "show_datasets",
         "show_annotators",
+        "confidence_indicator_set"
     )
 
     def show_spectro_configs(self, obj):
@@ -204,6 +242,7 @@ class AnnotationResultAdmin(admin.ModelAdmin):
         "end_frequency",
         "annotation_tag",
         "annotation_task",
+        "confidence"
     )
 
 
@@ -349,7 +388,9 @@ class TabularMetadataShapeAdmin(admin.ModelAdmin):
         "tabular_metadata_variable",
     )
 
-
+admin.site.register(ConfidenceName, ConfidenceNameAdmin)
+admin.site.register(Confidence, ConfidenceAdmin)
+admin.site.register(ConfidenceIndicatorSet, ConfidenceIndicatorSetAdmin)
 admin.site.register(DatasetType, DatasetTypeAdmin)
 admin.site.register(Dataset, DatasetAdmin)
 admin.site.register(DatasetFile, DatasetFileAdmin)

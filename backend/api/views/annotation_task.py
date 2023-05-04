@@ -78,6 +78,7 @@ class AnnotationTaskViewSet(viewsets.ViewSet):
             "annotation_campaign",
             "annotation_campaign__spectro_configs",
             "annotation_campaign__annotation_set",
+            "annotation_campaign__confidence_indicator_set",
             "dataset_file__dataset",
             "dataset_file__dataset__spectro_configs",
             "dataset_file__dataset__audio_metadatum",

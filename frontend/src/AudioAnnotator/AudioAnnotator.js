@@ -61,6 +61,21 @@ export type Annotation = {
 
 type AnnotationTask = {
   annotationTags: Array<string>,
+  confidenceIndicatorSet: {
+    id: number,
+    name: string,
+    desc: string,
+    confidences: {
+      id: number,
+      name: string,
+      order: number
+    },
+    default_confidence:{
+      id: number,
+      name: string,
+      order: number
+    },
+  },
   boundaries: {
     startTime: string,
     endTime: string,
@@ -103,6 +118,7 @@ type AudioAnnotatorState = {
   taskStartTime: number,
   annotations: Array<Annotation>,
   currentDefaultTagAnnotation: string,
+  currentDefaultConfidenceIndicator: string,
   inAModal: boolean,
   checkbox_isChecked: Array<boolean>,
 };
@@ -135,6 +151,7 @@ class AudioAnnotator extends Component<AudioAnnotatorProps, AudioAnnotatorState>
       taskStartTime: now.getTime(),
       annotations: [],
       currentDefaultTagAnnotation: '',
+      currentDefaultConfidenceIndicator: '',
       inAModal: false,
       checkbox_isChecked:[],
     };
@@ -192,6 +209,7 @@ class AudioAnnotator extends Component<AudioAnnotatorProps, AudioAnnotatorState>
                 endTime: ann.endTime ? ann.endTime : 0,
                 startFrequency: ann.startFrequency ? ann.startFrequency : 0,
                 endFrequency: ann.endFrequency ? ann.endFrequency : 0,
+                
                 active: false,
               };
             } else {
@@ -218,7 +236,8 @@ class AudioAnnotator extends Component<AudioAnnotatorProps, AudioAnnotatorState>
             isLoading: false,
             error: undefined,
             annotations,
-            checkbox_isChecked:checkbox_isChecked,
+            checkbox_isChecked: checkbox_isChecked,
+            currentDefaultConfidenceIndicator: task.confidenceIndicatorSet.default_confidence,
           });
 
         } else {
@@ -713,11 +732,11 @@ class AudioAnnotator extends Component<AudioAnnotatorProps, AudioAnnotatorState>
 
     return (
       <div className="row">
-        <div className="col-sm-6 mt-0 d-flex justify-content-around align-items-start">
+        <div className="col-sm-8 mt-0 d-flex justify-content-around align-items-start">
           {this.renderActiveBoxAnnotation()}
           {isPresenceMode ? this.presenceAbsentTagCheckbox() : null}
         </div>
-        <div className="col-sm-6">
+        <div className="col-sm-4">
           <div className='mt-2 table__rounded shadow-double border__black--125 w-maxc'>
           <table className="table table-hover rounded">
             <thead className="">
@@ -836,6 +855,32 @@ class AudioAnnotator extends Component<AudioAnnotatorProps, AudioAnnotatorState>
     }
   }
 
+  renderConfidenceIndicator = () => {
+    if (this.state.task) {
+
+      const activeConfidence = this.state.currentDefaultConfidenceIndicator;
+      const confidences = this.state.task.confidenceIndicatorSet.confidences.map((confidence, idx) => {
+
+        return (
+          <li key={`tag-${idx.toString()}`}>
+            <button
+              id={`tags_key_shortcuts_${idx.toString()}`}
+              className= {activeConfidence.id === confidence.id ? "btn btn--active" : "btn"}
+              onClick={() => this.toggleAnnotationTag(confidence)}
+              type="button"
+            >{confidence.name}</button>
+          </li>
+        );
+        });
+
+        return (
+          <ul className="card-text annotation-tags">{confidences}</ul>
+        );
+}
+    else {
+      return (<React.Fragment></React.Fragment>);
+    }
+  }
   str_pad_left = (string, pad, length) => {
     return (new Array(length + 1).join(pad) + string).slice(-length);
   }
@@ -856,7 +901,7 @@ class AudioAnnotator extends Component<AudioAnnotatorProps, AudioAnnotatorState>
 
       return (
         <React.Fragment>
-        <div className="card">
+        <div className="card mr-2">
           <h6 className="card-header text-center">Selected annotation</h6>
           <div className="card-body d-flex justify-content-between">
               <p className="card-text">
@@ -870,27 +915,48 @@ class AudioAnnotator extends Component<AudioAnnotatorProps, AudioAnnotatorState>
             </p>
           </div>
         </div>
-        <div className="card">
-          <h6 className="card-header text-center">Tags list</h6>
-          <div className="card-body d-flex justify-content-between">
-              {tags}
+        <div className="flex-shrink-2">
+          <div className="card">
+            <h6 className="card-header text-center">Tags list</h6>
+            <div className="card-body d-flex justify-content-between">
+                {tags}
+            </div>
           </div>
+
+          {/* Confidence Indicator management */}
+            <div className="card">
+              <h6 className="card-header text-center">Confidence indicator</h6>
+              <div className="card-body d-flex justify-content-center">
+                  {this.renderConfidenceIndicator()}
+              </div>
+            </div>
         </div>
         </React.Fragment>
       );
     } else {
       return (
         <React.Fragment>
-          <div className="card">
+          <div className="card mr-2">
             <h6 className="card-header text-center">Selected annotation</h6>
             <div className="card-body">
               <p className="card-text text-center">-</p>
             </div>
           </div>
-          <div className="card">
-            <h6 className="card-header text-center">Tags list</h6>
-            <div className="card-body d-flex justify-content-between">
-                {tags}
+
+          <div className="flex-shrink-2">
+              <div className="card">
+                <h6 className="card-header text-center">Tags list</h6>
+                <div className="card-body d-flex justify-content-between">
+                    {tags}
+                </div>
+              </div>
+
+            {/* Confidence Indicator management */}
+            <div className="card">
+                <h6 className="card-header text-center">Confidence indicator</h6>
+                <div className="card-body d-flex justify-content-center">
+                    {this.renderConfidenceIndicator()}
+                </div>
             </div>
           </div>
         </React.Fragment>

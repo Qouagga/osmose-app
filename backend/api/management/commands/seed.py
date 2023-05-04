@@ -1,5 +1,4 @@
 import os, glob
-
 from datetime import datetime
 from random import randint, choice
 
@@ -19,6 +18,9 @@ from backend.api.models import (
     AnnotationSet,
     AnnotationCampaign,
     WindowType,
+    ConfidenceName,
+    Confidence,
+    ConfidenceIndicatorSet,
 )
 
 
@@ -46,9 +48,10 @@ class Command(management.BaseCommand):
         self._create_users()
         self._create_datasets()
         self._create_annotation_sets()
-        self._create_annotation_campaigns()
+        confidence_indicator_set, no_confidence, confidence = self._create_confidence_sets()
+        self._create_annotation_campaigns(confidence_indicator_set)
         self._create_spectro_configs()
-        self._create_annotation_results()
+        self._create_annotation_results(no_confidence, confidence)
 
     def _create_users(self):
         users = ["dc", "ek", "ja", "pnhd", "ad", "rv"]
@@ -124,7 +127,26 @@ class Command(management.BaseCommand):
                 annotation_set.tags.create(name=tag)
             self.annotation_sets[seed_set["name"]] = annotation_set
 
-    def _create_annotation_campaigns(self):
+    def _create_confidence_sets(self):
+        confidenceName_0 = ConfidenceName.objects.create(name="not confident")
+        confidenceName_1 = ConfidenceName.objects.create(name="confident")
+
+        confidence_0 = Confidence.objects.create(name=confidenceName_0, order=0)
+        confidence_1 = Confidence.objects.create(name=confidenceName_1, order=1)
+        confidence_0.save()
+        confidence_1.save()
+
+        confidenceIndicatorSet = ConfidenceIndicatorSet.objects.create(
+            name="Confident/NotConfident",
+            default_confidence=confidence_1,
+            )
+
+        confidenceIndicatorSet.confidences.set([confidence_0, confidence_1])
+        confidenceIndicatorSet.save()
+
+        return confidenceIndicatorSet, confidence_0, confidence_1
+
+    def _create_annotation_campaigns(self, confidenceIndicatorSet):
         campaigns = [
             {
                 "name": "Test SPM campaign",
@@ -147,7 +169,7 @@ class Command(management.BaseCommand):
         self.campaigns = []
         for campaign_data in campaigns:
             campaign = AnnotationCampaign.objects.create(
-                **campaign_data, owner=self.admin
+                **campaign_data, owner=self.admin, confidence_indicator_set=confidenceIndicatorSet,
             )
             campaign.datasets.add(self.dataset)
             for file in self.dataset.files.all():
@@ -194,7 +216,7 @@ class Command(management.BaseCommand):
             campaign.spectro_configs.add(spectro_config1)
             campaign.save()
 
-    def _create_annotation_results(self):
+    def _create_annotation_results(self, no_confidence, confidence):
         campaign = self.campaigns[0]
         tags = list(self.annotation_sets.values())[0].tags.values_list("id", flat=True)
         for user in self.users:
@@ -210,6 +232,7 @@ class Command(management.BaseCommand):
                         start_frequency=start_frequency,
                         end_frequency=start_frequency + randint(2000, 5000),
                         annotation_tag_id=choice(tags),
+                        confidence=choice([no_confidence, confidence]),
                     )
                 task.status = 2
                 task.save()

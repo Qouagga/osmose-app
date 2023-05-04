@@ -15,6 +15,9 @@ from drf_spectacular.utils import extend_schema_field
 from backend.api.models import AnnotationTask, AnnotationResult, SpectroConfig
 
 
+from backend.api.serializers.confidence_set import ConfidenceIndicatorSetSerializer, ConfidenceResultSerializer
+
+
 class AnnotationTaskSerializer(serializers.ModelSerializer):
     """Serializer meant to output basic AnnotationTask data"""
 
@@ -103,6 +106,7 @@ class AnnotationTaskRetrieveSerializer(serializers.Serializer):
     # pylint: disable=invalid-name
     campaignId = serializers.IntegerField(source="annotation_campaign_id")
     annotationTags = serializers.SerializerMethodField()
+    confidenceIndicatorSet = serializers.SerializerMethodField()
     boundaries = serializers.SerializerMethodField()
     audioUrl = serializers.SerializerMethodField()
     audioRate = serializers.SerializerMethodField()
@@ -117,6 +121,11 @@ class AnnotationTaskRetrieveSerializer(serializers.Serializer):
         return list(
             task.annotation_campaign.annotation_set.tags.values_list("name", flat=True)
         )
+
+    @extend_schema_field(ConfidenceIndicatorSetSerializer)
+    def get_confidenceIndicatorSet(self, task):
+        return ConfidenceIndicatorSetSerializer(task.annotation_campaign.confidence_indicator_set).data
+
 
     @extend_schema_field(AnnotationTaskBoundarySerializer)
     def get_boundaries(self, task):
