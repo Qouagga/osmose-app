@@ -48,7 +48,7 @@ export type RawAnnotation = {
 export const TYPE_TAG: string = 'tag';
 export const TYPE_BOX: string = 'box';
 
-export type Confidence = {
+export type ConfidenceIndicator = {
   id: number,
   name: string,
   order: number
@@ -63,7 +63,7 @@ export type Annotation = {
   startFrequency: number,
   endFrequency: number,
   active: boolean,
-  confidence: string
+  confidenceIndicator: string
 };
 
 type AnnotationTask = {
@@ -72,12 +72,12 @@ type AnnotationTask = {
     id: number,
     name: string,
     desc: string,
-    confidences: {
+    confidenceIndicators: {
       id: number,
       name: string,
       order: number
     },
-    default_confidence:{
+    default_confidenceIndicator:{
       id: number,
       name: string,
       order: number
@@ -216,7 +216,7 @@ class AudioAnnotator extends Component<AudioAnnotatorProps, AudioAnnotatorState>
                 endTime: ann.endTime ? ann.endTime : 0,
                 startFrequency: ann.startFrequency ? ann.startFrequency : 0,
                 endFrequency: ann.endFrequency ? ann.endFrequency : 0,
-                confidence: ann.confidence ? ann.confidence.name : null,
+                confidenceIndicator: ann.confidenceIndicator ? ann.confidenceIndicator : null,
                 active: false,
               };
             } else {
@@ -229,7 +229,7 @@ class AudioAnnotator extends Component<AudioAnnotatorProps, AudioAnnotatorState>
                 endTime: -1,
                 startFrequency: -1,
                 endFrequency: -1,
-                confidence: ann.confidence ? ann.confidence.name : null,
+                confidenceIndicator: ann.confidenceIndicator ? ann.confidenceIndicator.label : null,
                 active: false,
               };
             }
@@ -245,7 +245,7 @@ class AudioAnnotator extends Component<AudioAnnotatorProps, AudioAnnotatorState>
             error: undefined,
             annotations,
             checkbox_isChecked: checkbox_isChecked,
-            currentDefaultConfidenceIndicator: task.confidenceIndicatorSet.default_confidence.name,
+            currentDefaultConfidenceIndicator: task.confidenceIndicatorSet.defaultConfidenceIndicator[0].label,
           });
 
         } else {
@@ -447,7 +447,7 @@ class AudioAnnotator extends Component<AudioAnnotatorProps, AudioAnnotatorState>
     this.setState({
       annotations: annotations,
       currentDefaultTagAnnotation: activated.annotation,
-      currentDefaultConfidenceIndicator: activated.confidence,
+      currentDefaultConfidenceIndicator: activated.confidenceIndicator,
     });
   }
 
@@ -472,14 +472,14 @@ class AudioAnnotator extends Component<AudioAnnotatorProps, AudioAnnotatorState>
     }
   }
 
-  toggleAnnotationConfidence = (confidence: string) => {
+  toggleAnnotationConfidence = (confidenceIndicator: string) => {
     const activeAnn: ?Annotation = this.state.annotations
       .find(ann => ann.type === TYPE_BOX && ann.active);
 
     if (activeAnn) {
-      const newConfidence: Confidence = (activeAnn.confidence === confidence) ? '' : confidence;
+      const newConfidence: ConfidenceIndicator = (activeAnn.confidenceIndicator === confidenceIndicator) ? '' : confidenceIndicator;
       const newAnnotation: Annotation = Object.assign(
-        {}, activeAnn, { confidence: newConfidence,  }
+        {}, activeAnn, { confidenceIndicator: newConfidence,  }
       );
       const annotations: Array<Annotation> = this.state.annotations
         .filter(ann => !ann.active)
@@ -488,7 +488,7 @@ class AudioAnnotator extends Component<AudioAnnotatorProps, AudioAnnotatorState>
       this.setState({
         annotations,
         toastMsg: undefined,
-        currentDefaultConfidenceIndicator: confidence,
+        currentDefaultConfidenceIndicator: confidenceIndicator,
       });
     }
   }
@@ -506,7 +506,7 @@ class AudioAnnotator extends Component<AudioAnnotatorProps, AudioAnnotatorState>
         endTime: -1,
         startFrequency: -1,
         endFrequency: -1,
-        confidence: null,
+        confidenceIndicator: null,
         active: true,
       };
       this.saveAnnotation(newAnnotation);
@@ -562,6 +562,7 @@ class AudioAnnotator extends Component<AudioAnnotatorProps, AudioAnnotatorState>
         const endTime = ann.type === TYPE_BOX ? ann.endTime : null;
         const startFrequency = ann.type === TYPE_BOX ? ann.startFrequency : null;
         const endFrequency = ann.type === TYPE_BOX ? ann.endFrequency : null;
+        const confidenceIndicator = ann.type === TYPE_BOX ? ann.confidenceIndicator : null;
         return {
           id: ann.id,
           startTime,
@@ -569,6 +570,7 @@ class AudioAnnotator extends Component<AudioAnnotatorProps, AudioAnnotatorState>
           annotation: ann.annotation,
           startFrequency,
           endFrequency,
+          confidenceIndicator,
         };
       });
     const now: Date = new Date();
@@ -893,23 +895,23 @@ class AudioAnnotator extends Component<AudioAnnotatorProps, AudioAnnotatorState>
   renderConfidenceIndicator = () => {
     if (this.state.task) {
 
-      const activeConfidence = this.state.currentDefaultConfidenceIndicator;
-      const confidences = this.state.task.confidenceIndicatorSet.confidences.map((confidence, idx) => {
+      const activeConfidenceIndicator= this.state.currentDefaultConfidenceIndicator;
+      const confidenceIndicators = this.state.task.confidenceIndicatorSet.confidenceIndicators.map((confidenceIndicator, idx) => {
 
         return (
           <li key={`tag-${idx.toString()}`}>
             <button
               id={`tags_key_shortcuts_${idx.toString()}`}
-              className= {activeConfidence === confidence.name ? "btn btn--active" : "btn"}
-              onClick={() => this.toggleAnnotationConfidence(confidence.name)}
+              className= {activeConfidenceIndicator === confidenceIndicator.label ? "btn btn--active" : "btn"}
+              onClick={() => this.toggleAnnotationConfidence(confidenceIndicator.label)}
               type="button"
-            >{confidence.name}</button>
+            >{confidenceIndicator.label}</button>
           </li>
         );
         });
 
         return (
-          <ul className="card-text annotation-tags">{confidences}</ul>
+          <ul className="card-text annotation-tags">{confidenceIndicators}</ul>
         );
 }
     else {
@@ -1023,7 +1025,7 @@ class AudioAnnotator extends Component<AudioAnnotatorProps, AudioAnnotatorState>
           </td>
           <td>
             <i className="fa-solid fa-handshake"></i>&nbsp;
-            {(annotation.confidence !== '') ? annotation.confidence : '-'}
+            {(annotation.confidenceIndicator !== '') ? annotation.confidenceIndicator : '-'}
           </td>
         </tr>
       );

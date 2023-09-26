@@ -7,39 +7,12 @@ from django.db import models
 from django.conf import settings
 from django.db.models import Q
 
-class ConfidenceName(models.Model):
-    """
-    This table contains collections of tags to be used for dataset annotations. An annotation_set is created by a user
-    and can be used for multiple datasets and annotation campaigns.
-    """
 
-    class Meta:
-        db_table = "confidence_name"
-
-    def __str__(self):
-        return str(self.name)
-
-    name = models.CharField(max_length=255, unique=True)
-
-class Confidence(models.Model):
-    """
-    This table contains collections of tags to be used for dataset annotations. An annotation_set is created by a user
-    and can be used for multiple datasets and annotation campaigns.
-    """
-
-    class Meta:
-        db_table = "confidence"
-
-    def __str__(self):
-        return str(self.name)
-
-    name = models.ForeignKey(ConfidenceName, on_delete=models.CASCADE)
-    order = models.IntegerField()
 
 class ConfidenceIndicatorSet(models.Model):
     """
-    This table contains collections of tags to be used for dataset annotations. An annotation_set is created by a user
-    and can be used for multiple datasets and annotation campaigns.
+    This table contains collections of confidence_indicator to be used for dataset annotations. An annotation_set is created by a user
+    and can be used for multiple annotation campaigns.
     """
 
     class Meta:
@@ -50,13 +23,29 @@ class ConfidenceIndicatorSet(models.Model):
 
     name = models.CharField(max_length=255, unique=True)
     desc = models.TextField(null=True, blank=True)
-    confidences = models.ManyToManyField(Confidence)
-    default_confidence=models.ForeignKey(Confidence,
+
+class ConfidenceIndicator(models.Model):
+    """
+    This table contains confidenceIndicator to be used for dataset annotations. An ConfidenceIndicatorSet is created by a user
+    and can be used for multiple annotation campaigns.
+    """
+
+    class Meta:
+        db_table = "confidence_indicator"
+
+    def __str__(self):
+        return str(self.label)
+
+    label = models.CharField(max_length=255, unique=True)
+    level = models.IntegerField()
+    confidence_indicator_set = models.ForeignKey(ConfidenceIndicatorSet,
                                         on_delete=models.CASCADE,
-                                        related_name="default_confidence",
+                                        related_name="confidence_indicators")
+    default_confidence_indicator_set = models.ForeignKey(ConfidenceIndicatorSet,
+                                        on_delete=models.CASCADE,
+                                        related_name="default_confidence_indicator",
                                         null=True,
                                         blank=True)
-
 class AnnotationTag(models.Model):
     """
     This table contains tags which are used to constitute annotation_sets and serve to annotate files for annotation
@@ -238,7 +227,7 @@ class AnnotationResult(models.Model):
     annotation_task = models.ForeignKey(
         AnnotationTask, on_delete=models.CASCADE, related_name="results"
     )
-    confidence = models.ForeignKey(Confidence, on_delete=models.CASCADE, null=True, blank=True)
+    confidence_indicator = models.ForeignKey(ConfidenceIndicator, on_delete=models.CASCADE, null=True, blank=True)
 
 
 class AnnotationSession(models.Model):

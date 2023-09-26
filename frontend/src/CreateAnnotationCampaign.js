@@ -111,7 +111,7 @@ class ShowConfidenceIndicatorSet extends Component<ShowConfidenceIndicatorSetPro
     let options = utils.objectValues(this.props.confidence_sets).map(confidence_set => {
       let id = confidence_set.id;
       return (
-        <option key={id} value={id}>{confidence_set.name}</option>
+        <option key={id} value={id}>{confidence_set.label}</option>
       );
     });
 
@@ -127,7 +127,7 @@ class ShowConfidenceIndicatorSet extends Component<ShowConfidenceIndicatorSetPro
           <div className="col-sm-12 border rounded">
             <p>{this.state.selected.desc}</p>
             {this.state.selected.confidences.map(confidence => {
-              return (<p key={"confidence" + confidence.order + "_" + confidence.name}><b>{confidence.order}: </b> {confidence.name}</p>)
+              return (<p key={"confidence" + confidence.level + "_" + confidence.label}><b>{confidence.level}: </b> {confidence.label}</p>)
             })}
           </div>
         }

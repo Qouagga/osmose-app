@@ -13,8 +13,7 @@ from backend.api.models.metadata import (
     WindowType,
 )
 from backend.api.models.annotations import (
-    ConfidenceName,
-    Confidence,
+    ConfidenceIndicator,
     ConfidenceIndicatorSet,
     AnnotationTag,
     AnnotationSet,

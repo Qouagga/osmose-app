@@ -7,7 +7,6 @@ from random import randint, choice
 from django.core import management, files
 from django.utils.dateparse import parse_datetime
 from datetime import timedelta
-from django.utils import timezone
 
 from django.contrib.auth.models import User
 from backend.api.models import (
@@ -18,11 +17,9 @@ from backend.api.models import (
     AnnotationSet,
     AnnotationCampaign,
     WindowType,
-    ConfidenceName,
-    Confidence,
+    ConfidenceIndicator,
     ConfidenceIndicatorSet,
 )
-
 
 class Command(management.BaseCommand):
     help = "Seeds the DB with fake data (deletes all existing data first)"
@@ -41,7 +38,7 @@ class Command(management.BaseCommand):
             return
 
         # Cleanup
-        management.call_command("flush", verbosity=0, interactive=False)
+        #management.call_command("flush", verbosity=0, interactive=False)
 
         # Creation
         self.datafile_count = 50
@@ -128,21 +125,18 @@ class Command(management.BaseCommand):
             self.annotation_sets[seed_set["name"]] = annotation_set
 
     def _create_confidence_sets(self):
-        confidenceName_0 = ConfidenceName.objects.create(name="not confident")
-        confidenceName_1 = ConfidenceName.objects.create(name="confident")
-
-        confidence_0 = Confidence.objects.create(name=confidenceName_0, order=0)
-        confidence_1 = Confidence.objects.create(name=confidenceName_1, order=1)
-        confidence_0.save()
-        confidence_1.save()
 
         confidenceIndicatorSet = ConfidenceIndicatorSet.objects.create(
             name="Confident/NotConfident",
-            default_confidence=confidence_1,
             )
 
-        confidenceIndicatorSet.confidences.set([confidence_0, confidence_1])
-        confidenceIndicatorSet.save()
+        confidence_0 = ConfidenceIndicator.objects.create(label="not confident",
+                                                          level=0,
+                                                          confidence_indicator_set=confidenceIndicatorSet)
+        confidence_1 = ConfidenceIndicator.objects.create(label="confident",
+                                                          level=1,
+                                                          confidence_indicator_set=confidenceIndicatorSet,
+                                                          default_confidence_indicator_set=confidenceIndicatorSet)
 
         return confidenceIndicatorSet, confidence_0, confidence_1
 
@@ -232,7 +226,7 @@ class Command(management.BaseCommand):
                         start_frequency=start_frequency,
                         end_frequency=start_frequency + randint(2000, 5000),
                         annotation_tag_id=choice(tags),
-                        confidence=choice([no_confidence, confidence]),
+                        confidence_indicator=choice([no_confidence, confidence]),
                     )
                 task.status = 2
                 task.save()

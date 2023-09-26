@@ -18,11 +18,9 @@ from backend.api.models import (
     AudioMetadatum,
     GeoMetadatum,
     WindowType,
-    ConfidenceName,
-    Confidence,
+    ConfidenceIndicator,
     ConfidenceIndicatorSet,
 )
-
 
 def get_many_to_many(obj, field_name, related_field_name="name"):
     """List all related field
@@ -43,23 +41,15 @@ def get_many_to_many(obj, field_name, related_field_name="name"):
 
     return many_to_many_attributs[:-2]
 
-class ConfidenceNameAdmin(admin.ModelAdmin):
-    """ConfidenceName presentation in DjangoAdmin
 
-    Args:
-        admin (admin.ModelAdmin)
-    """
-
-    list_display = ["id", "name"]
-
-class ConfidenceAdmin(admin.ModelAdmin):
+class ConfidenceIndicatorAdmin(admin.ModelAdmin):
     """Collection presentation in DjangoAdmin
 
     Args:
         admin (admin.ModelAdmin)
     """
 
-    list_display = ("id", "name", "order")
+    list_display = ("id", "label", "level")
 
 class ConfidenceIndicatorSetAdmin(admin.ModelAdmin):
     """Collection presentation in DjangoAdmin
@@ -71,12 +61,12 @@ class ConfidenceIndicatorSetAdmin(admin.ModelAdmin):
     list_display = ("id",
                     "name",
                     "desc",
-                    "show_confidences",
-                    "default_confidence")
+                    "show_confidence_indicators",
+                    "default_confidence_indicator")
 
-    def show_confidences(self, obj):
+    def show_confidence_indicators(self, obj):
         """show_confidences"""
-        return get_many_to_many(obj, "confidences")
+        return get_many_to_many(obj, "confidence_indicator")
 
 class CollectionAdmin(admin.ModelAdmin):
     """Collection presentation in DjangoAdmin
@@ -242,7 +232,7 @@ class AnnotationResultAdmin(admin.ModelAdmin):
         "end_frequency",
         "annotation_tag",
         "annotation_task",
-        "confidence"
+        "confidence_indicator"
     )
 
 
@@ -388,8 +378,7 @@ class TabularMetadataShapeAdmin(admin.ModelAdmin):
         "tabular_metadata_variable",
     )
 
-admin.site.register(ConfidenceName, ConfidenceNameAdmin)
-admin.site.register(Confidence, ConfidenceAdmin)
+admin.site.register(ConfidenceIndicator, ConfidenceIndicatorAdmin)
 admin.site.register(ConfidenceIndicatorSet, ConfidenceIndicatorSetAdmin)
 admin.site.register(DatasetType, DatasetTypeAdmin)
 admin.site.register(Dataset, DatasetAdmin)

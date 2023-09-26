@@ -7,53 +7,31 @@ from rest_framework import serializers
 
 from drf_spectacular.utils import extend_schema_field
 
-from backend.api.models import ConfidenceIndicatorSet, Confidence
+from backend.api.models import ConfidenceIndicatorSet, ConfidenceIndicator
 
-class ConfidenceSerializer(serializers.ModelSerializer):
+class ConfidenceIndicatorSerializer(serializers.ModelSerializer):
     """Serializer meant to output basic ConfidenceIndicatorSet data """
 
-    name = serializers.SerializerMethodField()
-
     class Meta:
-        model = Confidence
+        model = ConfidenceIndicator
         fields = ["id",
-                  "name",
-                  "order",
+                  "label",
+                  "level",
                   ]
-
-    @extend_schema_field(serializers.ListField(child=serializers.CharField()))
-    def get_name(self, confidence):
-        return confidence.name.name
-
-class ConfidenceResultSerializer(serializers.ModelSerializer):
-    """Serializer meant to output basic ConfidenceIndicatorSet data """
-
-    name = serializers.SerializerMethodField()
-
-    class Meta:
-        model = Confidence
-        fields = [
-                  "name",
-                  "order",
-                  ]
-
-    @extend_schema_field(serializers.ListField(child=serializers.CharField()))
-    def get_name(self, confidence):
-        return confidence.name.name
 
 class ConfidenceIndicatorSetSerializer(serializers.ModelSerializer):
     """Serializer meant to output basic ConfidenceIndicatorSet data """
 
-    confidences = ConfidenceSerializer(many=True)
-    default_confidence = ConfidenceSerializer()
+    confidenceIndicators = ConfidenceIndicatorSerializer(many=True, source="confidence_indicators")
+    defaultConfidenceIndicator = ConfidenceIndicatorSerializer(many=True, source="default_confidence_indicator")
 
     class Meta:
         model = ConfidenceIndicatorSet
         fields = ["id",
                   "name",
                   "desc",
-                  "confidences",
-                  "default_confidence"
+                  "confidenceIndicators",
+                  "defaultConfidenceIndicator"
                   ]
 
 
