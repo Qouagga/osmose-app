@@ -48,6 +48,12 @@ export type RawAnnotation = {
 export const TYPE_TAG: string = 'tag';
 export const TYPE_BOX: string = 'box';
 
+export type Confidence = {
+  id: number,
+  name: string,
+  order: number
+}
+
 export type Annotation = {
   type: string,
   id: string,
@@ -57,6 +63,7 @@ export type Annotation = {
   startFrequency: number,
   endFrequency: number,
   active: boolean,
+  confidence: string
 };
 
 type AnnotationTask = {
@@ -209,7 +216,7 @@ class AudioAnnotator extends Component<AudioAnnotatorProps, AudioAnnotatorState>
                 endTime: ann.endTime ? ann.endTime : 0,
                 startFrequency: ann.startFrequency ? ann.startFrequency : 0,
                 endFrequency: ann.endFrequency ? ann.endFrequency : 0,
-                
+                confidence: ann.confidence ? ann.confidence.name : null,
                 active: false,
               };
             } else {
@@ -222,6 +229,7 @@ class AudioAnnotator extends Component<AudioAnnotatorProps, AudioAnnotatorState>
                 endTime: -1,
                 startFrequency: -1,
                 endFrequency: -1,
+                confidence: ann.confidence ? ann.confidence.name : null,
                 active: false,
               };
             }
@@ -237,7 +245,7 @@ class AudioAnnotator extends Component<AudioAnnotatorProps, AudioAnnotatorState>
             error: undefined,
             annotations,
             checkbox_isChecked: checkbox_isChecked,
-            currentDefaultConfidenceIndicator: task.confidenceIndicatorSet.default_confidence,
+            currentDefaultConfidenceIndicator: task.confidenceIndicatorSet.default_confidence.name,
           });
 
         } else {
@@ -430,13 +438,17 @@ class AudioAnnotator extends Component<AudioAnnotatorProps, AudioAnnotatorState>
       const activated: Annotation = Object.assign(
         {}, annotation, { active: true }
       );
-    
+
       const annotations: Array<Annotation> = this.state.annotations
         .filter(ann => ann.id !== activated.id)
         .map(ann => Object.assign({}, ann, { active: false }))
         .concat(activated);
 
-        this.setState({annotations: annotations, currentDefaultTagAnnotation:activated.annotation});
+    this.setState({
+      annotations: annotations,
+      currentDefaultTagAnnotation: activated.annotation,
+      currentDefaultConfidenceIndicator: activated.confidence,
+    });
   }
 
   toggleAnnotationTag = (tag: string) => {
@@ -460,6 +472,27 @@ class AudioAnnotator extends Component<AudioAnnotatorProps, AudioAnnotatorState>
     }
   }
 
+  toggleAnnotationConfidence = (confidence: string) => {
+    const activeAnn: ?Annotation = this.state.annotations
+      .find(ann => ann.type === TYPE_BOX && ann.active);
+
+    if (activeAnn) {
+      const newConfidence: Confidence = (activeAnn.confidence === confidence) ? '' : confidence;
+      const newAnnotation: Annotation = Object.assign(
+        {}, activeAnn, { confidence: newConfidence,  }
+      );
+      const annotations: Array<Annotation> = this.state.annotations
+        .filter(ann => !ann.active)
+        .concat(newAnnotation);
+
+      this.setState({
+        annotations,
+        toastMsg: undefined,
+        currentDefaultConfidenceIndicator: confidence,
+      });
+    }
+  }
+
   toggleGlobalTag = (tag: string) => {
     if (this.state.checkbox_isChecked[tag]) {
       this.deleteAnnotationInPresenceMode(tag)
@@ -473,6 +506,7 @@ class AudioAnnotator extends Component<AudioAnnotatorProps, AudioAnnotatorState>
         endTime: -1,
         startFrequency: -1,
         endFrequency: -1,
+        confidence: null,
         active: true,
       };
       this.saveAnnotation(newAnnotation);
@@ -668,6 +702,7 @@ class AudioAnnotator extends Component<AudioAnnotatorProps, AudioAnnotatorState>
             onSeek={this.seekTo}
             drawingEnabled={isDrawingEnabled}
             currentDefaultTagAnnotation={this.state.currentDefaultTagAnnotation}
+            currentDefaultConfidenceIndicator={this.state.currentDefaultConfidenceIndicator}
           >
           </Workbench>
 
@@ -741,7 +776,7 @@ class AudioAnnotator extends Component<AudioAnnotatorProps, AudioAnnotatorState>
           <table className="table table-hover rounded">
             <thead className="">
               <tr className="text-center bg__black--003">
-                <th colSpan="3">Annotations</th>
+                <th colSpan="4">Annotations</th>
               </tr>
             </thead>
             <tbody>
@@ -865,8 +900,8 @@ class AudioAnnotator extends Component<AudioAnnotatorProps, AudioAnnotatorState>
           <li key={`tag-${idx.toString()}`}>
             <button
               id={`tags_key_shortcuts_${idx.toString()}`}
-              className= {activeConfidence.id === confidence.id ? "btn btn--active" : "btn"}
-              onClick={() => this.toggleAnnotationTag(confidence)}
+              className= {activeConfidence === confidence.name ? "btn btn--active" : "btn"}
+              onClick={() => this.toggleAnnotationConfidence(confidence.name)}
               type="button"
             >{confidence.name}</button>
           </li>
@@ -888,6 +923,7 @@ class AudioAnnotator extends Component<AudioAnnotatorProps, AudioAnnotatorState>
   renderActiveBoxAnnotation = () => {
     const activeAnn: ?Annotation = this.state.annotations.find(ann => ann.active);
     const tags = this.renderTags();
+    const confidenceIndicators = this.renderConfidenceIndicator();
 
     if (activeAnn && this.state.task) {
       const ann: Annotation = activeAnn;
@@ -927,7 +963,7 @@ class AudioAnnotator extends Component<AudioAnnotatorProps, AudioAnnotatorState>
             <div className="card">
               <h6 className="card-header text-center">Confidence indicator</h6>
               <div className="card-body d-flex justify-content-center">
-                  {this.renderConfidenceIndicator()}
+                  {confidenceIndicators}
               </div>
             </div>
         </div>
@@ -984,6 +1020,10 @@ class AudioAnnotator extends Component<AudioAnnotatorProps, AudioAnnotatorState>
           <td>
             <i className="fa fa-tag"></i>&nbsp;
             {(annotation.annotation !== '') ? annotation.annotation : '-'}
+          </td>
+          <td>
+            <i className="fa-solid fa-handshake"></i>&nbsp;
+            {(annotation.confidence !== '') ? annotation.confidence : '-'}
           </td>
         </tr>
       );

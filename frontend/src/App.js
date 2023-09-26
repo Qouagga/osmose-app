@@ -11,7 +11,8 @@ import CreateAnnotationCampaign from './CreateAnnotationCampaign';
 import AnnotationTaskList from './AnnotationTaskList';
 import AudioAnnotator from './AudioAnnotator/AudioAnnotator';
 
-import './css/font-awesome-4.7.0.min.css';
+import './css/fontawesome-6.4.2.min.css';
+import './css/solid.min.css';
 import './css/materialize.min.css';
 import './css/bootstrap-4.1.3.min.css';
 
