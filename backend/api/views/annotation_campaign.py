@@ -119,7 +119,7 @@ SPM Aural B,sound000.wav,284.0,493.0,5794.0,8359.0,Boat,Albert,2012-05-03T11:10:
     @action(detail=True, renderer_classes=[CSVRenderer])
     def report(self, request, pk=None):
         """Returns the CSV report for the given campaign"""
-        campaign = get_object_or_404(AnnotationCampaign, pk=pk)
+        campaign = get_object_or_404(AnnotationCampaign.objects.prefetch_related("confidence_indicator_set__confidence_indicators"), pk=pk)
         data = [
             [
                 "dataset",
@@ -133,16 +133,22 @@ SPM Aural B,sound000.wav,284.0,493.0,5794.0,8359.0,Boat,Albert,2012-05-03T11:10:
                 "start_datetime",
                 "end_datetime",
                 "is_box",
+                "confidence_indicator_label",
+                "confidence_indicator_order",
             ]
         ]
         results = AnnotationResult.objects.prefetch_related(
             "annotation_task",
+            "confidence_indicator",
             "annotation_task__annotator",
             "annotation_task__dataset_file",
             "annotation_task__dataset_file__dataset",
             "annotation_task__dataset_file__audio_metadatum",
             "annotation_tag",
         ).filter(annotation_task__annotation_campaign_id=pk)
+
+        lvl_max = max(campaign.confidence_indicator_set.confidence_indicators.all(), key=lambda x: x.level).level
+
         for result in results:
             audio_meta = result.annotation_task.dataset_file.audio_metadatum
             max_frequency = result.annotation_task.dataset_file.dataset_sr / 2
@@ -175,6 +181,8 @@ SPM Aural B,sound000.wav,284.0,493.0,5794.0,8359.0,Boat,Albert,2012-05-03T11:10:
                         + timedelta(seconds=(result.end_time or max_time))
                     ).isoformat(timespec="milliseconds"),
                     "1" if is_box else "0",
+                    result.confidence_indicator.label,
+                    str(result.confidence_indicator.level) + "/" + str(lvl_max),
                 ]
             )
         response = Response(data)
