@@ -64,6 +64,7 @@ type ACDState = {
     start: string,
     end: string,
     annotation_set_id: number,
+    confidence_indicator_set_id: number,
     owner_id: number,
     instructions_url: ?string,
   },
@@ -178,11 +179,13 @@ class AnnotationCampaignDetail extends Component<ACDProps, ACDState> {
     }
 
     let { campaign } = this.state;
+    console.log(campaign);
     return (
       <div className="col-sm-9 border rounded">
         <h1 className="text-center">{campaign.name}</h1>
         <div className="row">
           <div className="col-sm-4"><b>Annotation set:</b> #{campaign.annotation_set_id}</div>
+          
           <div className="col-sm-4"><b>Start:</b> {campaign.start ? new Date(campaign.start).toLocaleDateString() : 'N/A'}</div>
           <div className="col-sm-4"><b>End:</b> {campaign.end ? new Date(campaign.end).toLocaleDateString() : 'N/A'}</div>
         </div>
