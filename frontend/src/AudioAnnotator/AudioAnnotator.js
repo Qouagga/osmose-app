@@ -1,5 +1,5 @@
 // @flow
-import React, { Component, Fragment } from 'react';
+import React, { Component } from 'react';
 import { Link } from 'react-router-dom';
 import request from 'superagent';
 import * as utils from '../utils';
@@ -231,7 +231,7 @@ class AudioAnnotator extends Component<AudioAnnotatorProps, AudioAnnotatorState>
                 endTime: -1,
                 startFrequency: -1,
                 endFrequency: -1,
-                confidenceIndicator: ann.confidenceIndicator ? ann.confidenceIndicator.label : null,
+                confidenceIndicator: ann.confidenceIndicator ? ann.confidenceIndicator : null,
                 active: false,
               };
             }
@@ -508,7 +508,7 @@ class AudioAnnotator extends Component<AudioAnnotatorProps, AudioAnnotatorState>
         endTime: -1,
         startFrequency: -1,
         endFrequency: -1,
-        confidenceIndicator: null,
+        confidenceIndicator: this.state.currentDefaultConfidenceIndicator,
         active: true,
       };
       this.saveAnnotation(newAnnotation);
@@ -564,7 +564,6 @@ class AudioAnnotator extends Component<AudioAnnotatorProps, AudioAnnotatorState>
         const endTime = ann.type === TYPE_BOX ? ann.endTime : null;
         const startFrequency = ann.type === TYPE_BOX ? ann.startFrequency : null;
         const endFrequency = ann.type === TYPE_BOX ? ann.endFrequency : null;
-        const confidenceIndicator = ann.type === TYPE_BOX ? ann.confidenceIndicator : null;
         return {
           id: ann.id,
           startTime,
@@ -572,7 +571,7 @@ class AudioAnnotator extends Component<AudioAnnotatorProps, AudioAnnotatorState>
           annotation: ann.annotation,
           startFrequency,
           endFrequency,
-          confidenceIndicator,
+          confidenceIndicator:  ann.confidenceIndicator ,
         };
       });
     const now: Date = new Date();
@@ -875,7 +874,7 @@ class AudioAnnotator extends Component<AudioAnnotatorProps, AudioAnnotatorState>
       });
 
       return (
-          <div className="card">
+          <div className="card ml-2">
             <h6 className="card-header text-center">Presence / Absence</h6>
             <div className="card-body">
                 {tags}
@@ -921,11 +920,11 @@ class AudioAnnotator extends Component<AudioAnnotatorProps, AudioAnnotatorState>
           <div className=" d-flex justify-content-center">
             <ul className="card-text annotation-tags">{confidenceIndicators}</ul>
           </div>
-          <div className="row justify-content-center">
+          <div className={`row justify-content-center p-2 ${this.state.showConfidenceIndicatorSetDescription ? "" : "d-none"}`}>
             {this.state.showConfidenceIndicatorSetDescription ?
               this.state.task.confidenceIndicatorSet.desc
               : ''
-              }
+            }
           </div>
             </React.Fragment>
         );
@@ -955,7 +954,7 @@ class AudioAnnotator extends Component<AudioAnnotatorProps, AudioAnnotatorState>
 
       return (
         <React.Fragment>
-        <div className="card mr-2">
+        <div className="card mr-2 selected_annotation">
           <h6 className="card-header text-center">Selected annotation</h6>
           <div className="card-body d-flex justify-content-between">
               <p className="card-text">
@@ -965,7 +964,8 @@ class AudioAnnotator extends Component<AudioAnnotatorProps, AudioAnnotatorState>
               <i className="fa fa-arrow-up"></i> :&nbsp;
                 {ann.startFrequency === -1 ? this.state.task.boundaries.startFrequency : ann.startFrequency.toFixed(2)}&nbsp;&gt;&nbsp;
                 {ann.endFrequency === -1 ? this.state.task.boundaries.endFrequency : ann.endFrequency.toFixed(2)} Hz<br />
-              <i className="fa fa-tag"></i> :&nbsp;{ann.annotation ? ann.annotation : "None"}
+                <i className="fa fa-tag"></i> :&nbsp;{ann.annotation ? ann.annotation : "None"}<br />
+                <i className="fa fa-handshake"></i> :&nbsp;{ann.confidenceIndicator ? ann.confidenceIndicator : "None"}<br />
             </p>
           </div>
         </div>
@@ -1060,6 +1060,10 @@ class AudioAnnotator extends Component<AudioAnnotatorProps, AudioAnnotatorState>
               <i className="fa fa-tag"></i>&nbsp;
               {annotation.annotation}
             </strong>
+          </td>
+          <td>
+            <i className="fa-solid fa-handshake"></i>&nbsp;
+            {(annotation.confidenceIndicator !== '') ? annotation.confidenceIndicator : '-'}
           </td>
         </tr>
       );

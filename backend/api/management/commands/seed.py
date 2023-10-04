@@ -21,6 +21,7 @@ from backend.api.models import (
     ConfidenceIndicatorSet,
 )
 
+
 class Command(management.BaseCommand):
     help = "Seeds the DB with fake data (deletes all existing data first)"
 
@@ -38,14 +39,18 @@ class Command(management.BaseCommand):
             return
 
         # Cleanup
-        #management.call_command("flush", verbosity=0, interactive=False)
+        # management.call_command("flush", verbosity=0, interactive=False)
 
         # Creation
         self.datafile_count = 50
         self._create_users()
         self._create_datasets()
         self._create_annotation_sets()
-        confidence_indicator_set, no_confidence, confidence = self._create_confidence_sets()
+        (
+            confidence_indicator_set,
+            no_confidence,
+            confidence,
+        ) = self._create_confidence_sets()
         self._create_annotation_campaigns(confidence_indicator_set)
         self._create_spectro_configs()
         self._create_annotation_results(no_confidence, confidence)
@@ -128,15 +133,20 @@ class Command(management.BaseCommand):
 
         confidenceIndicatorSet = ConfidenceIndicatorSet.objects.create(
             name="Confident/NotConfident",
-            )
+            desc="Lorem ipsum dolor sit amet, consectetur adipiscing elit. Praesent non elit rhoncus augue rhoncus eleifend ut in magna. Phasellus tristique, ante in tempus porttitor, nunc massa euismod ipsum, quis pulvinar libero ante vitae sapien. Vivamus eu elit et urna luctus luctus. Quisque vel erat suscipit, tincidunt lectus ultrices, tempus quam. Suspendisse metus sapien, euismod in felis eget, finibus scelerisque ante.",
+        )
 
-        confidence_0 = ConfidenceIndicator.objects.create(label="not confident",
-                                                          level=0,
-                                                          confidence_indicator_set=confidenceIndicatorSet)
-        confidence_1 = ConfidenceIndicator.objects.create(label="confident",
-                                                          level=1,
-                                                          confidence_indicator_set=confidenceIndicatorSet,
-                                                          default_confidence_indicator_set=confidenceIndicatorSet)
+        confidence_0 = ConfidenceIndicator.objects.create(
+            label="not confident",
+            level=0,
+            confidence_indicator_set=confidenceIndicatorSet,
+        )
+        confidence_1 = ConfidenceIndicator.objects.create(
+            label="confident",
+            level=1,
+            confidence_indicator_set=confidenceIndicatorSet,
+            default_confidence_indicator_set=confidenceIndicatorSet,
+        )
 
         return confidenceIndicatorSet, confidence_0, confidence_1
 
@@ -163,7 +173,9 @@ class Command(management.BaseCommand):
         self.campaigns = []
         for campaign_data in campaigns:
             campaign = AnnotationCampaign.objects.create(
-                **campaign_data, owner=self.admin, confidence_indicator_set=confidenceIndicatorSet,
+                **campaign_data,
+                owner=self.admin,
+                confidence_indicator_set=confidenceIndicatorSet,
             )
             campaign.datasets.add(self.dataset)
             for file in self.dataset.files.all():

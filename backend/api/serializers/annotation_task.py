@@ -13,9 +13,9 @@ from rest_framework import serializers
 from drf_spectacular.utils import extend_schema_field
 
 from backend.api.models import AnnotationTask, AnnotationResult, SpectroConfig
-
-
-from backend.api.serializers.confidence_set import ConfidenceIndicatorSetSerializer, ConfidenceIndicatorSerializer
+from backend.api.serializers.confidence_indicator_set import (
+    ConfidenceIndicatorSetSerializer,
+)
 
 
 class AnnotationTaskSerializer(serializers.ModelSerializer):
@@ -52,7 +52,9 @@ class AnnotationTaskResultSerializer(serializers.ModelSerializer):
     endTime = serializers.FloatField(source="end_time", allow_null=True)
     startFrequency = serializers.FloatField(source="start_frequency", allow_null=True)
     endFrequency = serializers.FloatField(source="end_frequency", allow_null=True)
-    confidenceIndicator = serializers.CharField(source="confidence_indicator", allow_null=True)
+    confidenceIndicator = serializers.CharField(
+        source="confidence_indicator", allow_null=True
+    )
 
     class Meta:
         model = AnnotationResult
@@ -126,8 +128,9 @@ class AnnotationTaskRetrieveSerializer(serializers.Serializer):
 
     @extend_schema_field(ConfidenceIndicatorSetSerializer)
     def get_confidenceIndicatorSet(self, task):
-        return ConfidenceIndicatorSetSerializer(task.annotation_campaign.confidence_indicator_set).data
-
+        return ConfidenceIndicatorSetSerializer(
+            task.annotation_campaign.confidence_indicator_set
+        ).data
 
     @extend_schema_field(AnnotationTaskBoundarySerializer)
     def get_boundaries(self, task):
@@ -158,7 +161,9 @@ class AnnotationTaskRetrieveSerializer(serializers.Serializer):
 
     @extend_schema_field(AnnotationTaskResultSerializer(many=True))
     def get_prevAnnotations(self, task):
-        queryset = task.results.prefetch_related("annotation_tag", "confidence_indicator")
+        queryset = task.results.prefetch_related(
+            "annotation_tag", "confidence_indicator"
+        )
         return AnnotationTaskResultSerializer(queryset, many=True).data
 
 
@@ -190,11 +195,16 @@ class AnnotationTaskUpdateSerializer(serializers.Serializer):
             )
         )
 
-        update_confidence_indicators = set(ann["confidence_indicator"] for ann in annotations)
-        unknown_confidence_indicators = update_confidence_indicators - set_confidence_indicators
+        update_confidence_indicators = set(
+            ann["confidence_indicator"] for ann in annotations
+        )
+        unknown_confidence_indicators = (
+            update_confidence_indicators - set_confidence_indicators
+        )
         if unknown_confidence_indicators:
             raise serializers.ValidationError(
-                f"{unknown_confidence_indicators} not valid tags from annotation set {set_confidence_indicators}."
+                f"{unknown_confidence_indicators} not valid confidence indicator"
+                + f"from confidence indicator set {set_confidence_indicators}."
             )
 
         return annotations

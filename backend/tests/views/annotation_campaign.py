@@ -52,6 +52,7 @@ class AnnotationCampaignViewSetTestCase(APITestCase):
         "users",
         "datasets",
         "annotation_sets",
+        "confidence_indicator_sets",
         "annotation_campaigns_tasks",
         "annotation_results_sessions",
     ]
@@ -62,6 +63,7 @@ class AnnotationCampaignViewSetTestCase(APITestCase):
         "start": "2022-01-25T10:42:15Z",
         "end": "2022-01-30T10:42:15Z",
         "annotation_set_id": 1,
+        "confidence_indicator_set_id": 1,
         "datasets": [1],
         "spectros": [1],
         "annotators": [1, 2],

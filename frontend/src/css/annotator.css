@@ -607,3 +607,7 @@ div[class^='pulse-'] {
   border: 1px solid var(--color__0) !important;
   color: var(--color__0) !important;
 }
+
+.selected_annotation{
+  min-width: 15em !important;
+}

@@ -1,7 +1,7 @@
 """Python module for Django admin interface"""
 # Python admin has too many false-positives on the following warnings:
 # pylint: disable=too-many-function-args, R0801
-from collections import OrderedDict
+
 from django.contrib import admin
 
 from backend.api.models import (
@@ -21,6 +21,7 @@ from backend.api.models import (
     ConfidenceIndicator,
     ConfidenceIndicatorSet,
 )
+
 
 def get_many_to_many(obj, field_name, related_field_name="name"):
     """List all related field
@@ -43,57 +44,41 @@ def get_many_to_many(obj, field_name, related_field_name="name"):
 
 
 class ConfidenceIndicatorAdmin(admin.ModelAdmin):
-    """Collection presentation in DjangoAdmin
+    """Collection presentation in DjangoAdmin"""
 
-    Args:
-        admin (admin.ModelAdmin)
-    """
+    list_display = (
+        "id",
+        "label",
+        "level",
+        "confidence_indicator_set",
+        "default_confidence_indicator_set",
+    )
 
-    list_display = ("id", "label", "level")
 
 class ConfidenceIndicatorSetAdmin(admin.ModelAdmin):
-    """Collection presentation in DjangoAdmin
+    """Collection presentation in DjangoAdmin"""
 
-    Args:
-        admin (admin.ModelAdmin)
-    """
+    list_display = (
+        "id",
+        "name",
+        "desc",
+    )
 
-    list_display = ("id",
-                    "name",
-                    "desc",
-                    "show_confidence_indicators",
-                    "default_confidence_indicator")
-
-    def show_confidence_indicators(self, obj):
-        """show_confidences"""
-        return get_many_to_many(obj, "confidence_indicator")
 
 class CollectionAdmin(admin.ModelAdmin):
-    """Collection presentation in DjangoAdmin
-
-    Args:
-        admin (admin.ModelAdmin)
-    """
+    """Collection presentation in DjangoAdmin"""
 
     list_display = ("name", "desc", "owner")
 
 
 class DatasetTypeAdmin(admin.ModelAdmin):
-    """DatasetType presentation in DjangoAdmin
-
-    Args:
-        admin (admin.ModelAdmin)
-    """
+    """DatasetType presentation in DjangoAdmin"""
 
     list_display = ("name", "desc")
 
 
 class DatasetAdmin(admin.ModelAdmin):
-    """Dataset presentation in DjangoAdmin
-
-    Args:
-        admin (admin.ModelAdmin)
-    """
+    """Dataset presentation in DjangoAdmin"""
 
     list_display = (
         "name",
@@ -123,11 +108,7 @@ class DatasetAdmin(admin.ModelAdmin):
 
 
 class DatasetFileAdmin(admin.ModelAdmin):
-    """DatasetFile presentation in DjangoAdmin
-
-    Args:
-        admin (admin.ModelAdmin)
-    """
+    """DatasetFile presentation in DjangoAdmin"""
 
     list_display = (
         "filename",
@@ -140,21 +121,13 @@ class DatasetFileAdmin(admin.ModelAdmin):
 
 
 class AnnotationTagAdmin(admin.ModelAdmin):
-    """AnnotationTag presentation in DjangoAdmin
-
-    Args:
-        admin (admin.ModelAdmin)
-    """
+    """AnnotationTag presentation in DjangoAdmin"""
 
     list_display = ["name"]
 
 
 class AnnotationSetAdmin(admin.ModelAdmin):
-    """AnnotationSet presentation in DjangoAdmin
-
-    Args:
-        admin (admin.ModelAdmin)
-    """
+    """AnnotationSet presentation in DjangoAdmin"""
 
     list_display = (
         "name",
@@ -169,11 +142,7 @@ class AnnotationSetAdmin(admin.ModelAdmin):
 
 
 class AnnotationCampaignAdmin(admin.ModelAdmin):
-    """AnnotationCampaign presentation in DjangoAdmin
-
-    Args:
-        admin (admin.ModelAdmin)
-    """
+    """AnnotationCampaign presentation in DjangoAdmin"""
 
     list_display = (
         "name",
@@ -187,7 +156,7 @@ class AnnotationCampaignAdmin(admin.ModelAdmin):
         "show_spectro_configs",
         "show_datasets",
         "show_annotators",
-        "confidence_indicator_set"
+        "confidence_indicator_set",
     )
 
     def show_spectro_configs(self, obj):
@@ -204,11 +173,7 @@ class AnnotationCampaignAdmin(admin.ModelAdmin):
 
 
 class AnnotationTaskAdmin(admin.ModelAdmin):
-    """AnnotationTask presentation in DjangoAdmin
-
-    Args:
-        admin (admin.ModelAdmin)
-    """
+    """AnnotationTask presentation in DjangoAdmin"""
 
     list_display = (
         "status",
@@ -219,11 +184,7 @@ class AnnotationTaskAdmin(admin.ModelAdmin):
 
 
 class AnnotationResultAdmin(admin.ModelAdmin):
-    """AnnotationResult presentation in DjangoAdmin
-
-    Args:
-        admin (admin.ModelAdmin)
-    """
+    """AnnotationResult presentation in DjangoAdmin"""
 
     list_display = (
         "start_time",
@@ -232,16 +193,12 @@ class AnnotationResultAdmin(admin.ModelAdmin):
         "end_frequency",
         "annotation_tag",
         "annotation_task",
-        "confidence_indicator"
+        "confidence_indicator",
     )
 
 
 class AnnotationSessionAdmin(admin.ModelAdmin):
-    """AnnotationSession presentation in DjangoAdmin
-
-    Args:
-        admin (admin.ModelAdmin)
-    """
+    """AnnotationSession presentation in DjangoAdmin"""
 
     list_display = (
         "start",
@@ -252,11 +209,7 @@ class AnnotationSessionAdmin(admin.ModelAdmin):
 
 
 class AudioMetadatumAdmin(admin.ModelAdmin):
-    """AudioMetadatum presentation in DjangoAdmin
-
-    Args:
-        admin (admin.ModelAdmin)
-    """
+    """AudioMetadatum presentation in DjangoAdmin"""
 
     list_display = (
         "start",
@@ -273,11 +226,7 @@ class AudioMetadatumAdmin(admin.ModelAdmin):
 
 
 class GeoMetadatumAdmin(admin.ModelAdmin):
-    """GeoMetadatum presentation in DjangoAdmin
-
-    Args:
-        admin (admin.ModelAdmin)
-    """
+    """GeoMetadatum presentation in DjangoAdmin"""
 
     list_display = (
         "name",
@@ -288,21 +237,13 @@ class GeoMetadatumAdmin(admin.ModelAdmin):
 
 
 class WindowTypeAdmin(admin.ModelAdmin):
-    """WindowType presentation in DjangoAdmin
-
-    Args:
-        admin (admin.ModelAdmin)
-    """
+    """WindowType presentation in DjangoAdmin"""
 
     list_display = ("name",)
 
 
 class SpectroConfigAdmin(admin.ModelAdmin):
-    """SpectroConfig presentation in DjangoAdmin
-
-    Args:
-        admin (admin.ModelAdmin)
-    """
+    """SpectroConfig presentation in DjangoAdmin"""
 
     list_display = (
         "name",
@@ -334,11 +275,7 @@ class SpectroConfigAdmin(admin.ModelAdmin):
 
 
 class TabularMetadatumAdmin(admin.ModelAdmin):
-    """TabularMetadatum presentation in DjangoAdmin
-
-    Args:
-        admin (admin.ModelAdmin)
-    """
+    """TabularMetadatum presentation in DjangoAdmin"""
 
     list_display = (
         "name",
@@ -349,11 +286,7 @@ class TabularMetadatumAdmin(admin.ModelAdmin):
 
 
 class TabularMetadataVariableAdmin(admin.ModelAdmin):
-    """TabularMetadataVariable presentation in DjangoAdmin
-
-    Args:
-        admin (admin.ModelAdmin)
-    """
+    """TabularMetadataVariable presentation in DjangoAdmin"""
 
     list_display = (
         "name",
@@ -366,17 +299,14 @@ class TabularMetadataVariableAdmin(admin.ModelAdmin):
 
 
 class TabularMetadataShapeAdmin(admin.ModelAdmin):
-    """TabularMetadataShape presentation in DjangoAdmin
-
-    Args:
-        admin (admin.ModelAdmin)
-    """
+    """TabularMetadataShape presentation in DjangoAdmin"""
 
     list_display = (
         "dimension_position",
         "tabular_metadata_dimension",
         "tabular_metadata_variable",
     )
+
 
 admin.site.register(ConfidenceIndicator, ConfidenceIndicatorAdmin)
 admin.site.register(ConfidenceIndicatorSet, ConfidenceIndicatorSetAdmin)
