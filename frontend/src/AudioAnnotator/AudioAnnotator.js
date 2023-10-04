@@ -1,5 +1,5 @@
 // @flow
-import React, { Component } from 'react';
+import React, { Component, Fragment } from 'react';
 import { Link } from 'react-router-dom';
 import request from 'superagent';
 import * as utils from '../utils';
@@ -128,6 +128,7 @@ type AudioAnnotatorState = {
   currentDefaultConfidenceIndicator: string,
   inAModal: boolean,
   checkbox_isChecked: Array<boolean>,
+  showConfidenceIndicatorSetDescription: boolean,
 };
 
 class AudioAnnotator extends Component<AudioAnnotatorProps, AudioAnnotatorState> {
@@ -160,7 +161,8 @@ class AudioAnnotator extends Component<AudioAnnotatorProps, AudioAnnotatorState>
       currentDefaultTagAnnotation: '',
       currentDefaultConfidenceIndicator: '',
       inAModal: false,
-      checkbox_isChecked:[],
+      checkbox_isChecked: [],
+      showConfidenceIndicatorSetDescription: false,
     };
   }
 
@@ -892,6 +894,10 @@ class AudioAnnotator extends Component<AudioAnnotatorProps, AudioAnnotatorState>
     }
   }
 
+  toggleShowConfidenceIndicatorSetDescription = () => {
+    this.setState({showConfidenceIndicatorSetDescription: !this.state.showConfidenceIndicatorSetDescription})
+  }
+
   renderConfidenceIndicator = () => {
     if (this.state.task) {
 
@@ -910,8 +916,18 @@ class AudioAnnotator extends Component<AudioAnnotatorProps, AudioAnnotatorState>
         );
         });
 
-        return (
-          <ul className="card-text annotation-tags">{confidenceIndicators}</ul>
+      return (
+        <React.Fragment>
+          <div className=" d-flex justify-content-center">
+            <ul className="card-text annotation-tags">{confidenceIndicators}</ul>
+          </div>
+          <div className="row justify-content-center">
+            {this.state.showConfidenceIndicatorSetDescription ?
+              this.state.task.confidenceIndicatorSet.desc
+              : ''
+              }
+          </div>
+            </React.Fragment>
         );
 }
     else {
@@ -962,10 +978,12 @@ class AudioAnnotator extends Component<AudioAnnotatorProps, AudioAnnotatorState>
           </div>
 
           {/* Confidence Indicator management */}
-            <div className="card">
+            <div className="card"
+              onMouseEnter={() => { this.toggleShowConfidenceIndicatorSetDescription() }}
+              onMouseLeave={() => { this.toggleShowConfidenceIndicatorSetDescription() }}>
               <h6 className="card-header text-center">Confidence indicator</h6>
-              <div className="card-body d-flex justify-content-center">
-                  {confidenceIndicators}
+              <div className="card-body">
+                {confidenceIndicators}
               </div>
             </div>
         </div>
@@ -990,9 +1008,11 @@ class AudioAnnotator extends Component<AudioAnnotatorProps, AudioAnnotatorState>
               </div>
 
             {/* Confidence Indicator management */}
-            <div className="card">
+            <div className="card"
+              onMouseEnter={() => { this.toggleShowConfidenceIndicatorSetDescription() }}
+              onMouseLeave={() => { this.toggleShowConfidenceIndicatorSetDescription() }}>
                 <h6 className="card-header text-center">Confidence indicator</h6>
-                <div className="card-body d-flex justify-content-center">
+                <div className="card-body">
                     {this.renderConfidenceIndicator()}
                 </div>
             </div>
